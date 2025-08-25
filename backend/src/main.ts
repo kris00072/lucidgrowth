@@ -9,6 +9,7 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:3000', // Local development
     'http://localhost:3001', // Local backend (if needed)
+    'https://lucidgrowth-frontend.vercel.app', // Vercel frontend
   ];
 
   // Add production frontend URL if provided
