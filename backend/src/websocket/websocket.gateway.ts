@@ -26,7 +26,6 @@ export class AppWebSocketGateway implements OnGatewayConnection, OnGatewayDiscon
     this.connectedClients.add(client);
     this.logger.log(`Client connected: ${client.id}`);
     
-    // Send current status
     client.emit('connected', { message: 'Connected to server' });
   }
 
@@ -35,18 +34,12 @@ export class AppWebSocketGateway implements OnGatewayConnection, OnGatewayDiscon
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  /**
-   * Handle client subscription to email updates
-   */
   @SubscribeMessage('subscribe')
   handleSubscribe(client: Socket, payload: any) {
     this.logger.log(`Client ${client.id} subscribed to updates`);
     client.emit('subscribed', { message: 'Subscribed to email updates' });
   }
 
-  /**
-   * Notify all connected clients about new email
-   */
   notifyEmailCreated(email: Email) {
     this.server.emit('email:created', email);
     this.logger.log(`Notified clients about new email: ${email.emailId}`);

@@ -18,17 +18,11 @@ import { Email, EmailStatus } from './schemas/email.schema';
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
-  /**
-   * Create a new email
-   */
   @Post()
   async create(@Body() createEmailDto: CreateEmailDto): Promise<Email> {
     return this.emailService.create(createEmailDto);
   }
 
-  /**
-   * Get all emails with pagination
-   */
   @Get()
   async findAll(
     @Query('page') page: string = '1',
@@ -40,26 +34,17 @@ export class EmailController {
     return this.emailService.findAll(pageNum, limitNum);
   }
 
-  /**
-   * Get email by ID
-   */
   @Get(':emailId')
   async findOne(@Param('emailId') emailId: string): Promise<Email> {
     return this.emailService.findOne(emailId);
   }
 
-  /**
-   * Get email processing status
-   */
   @Get(':emailId/status')
   async getStatus(@Param('emailId') emailId: string): Promise<{ status: EmailStatus }> {
     const email = await this.emailService.findOne(emailId);
     return { status: email.status };
   }
 
-  /**
-   * Update email by ID
-   */
   @Post(':emailId')
   @HttpCode(HttpStatus.OK)
   async update(
@@ -69,9 +54,6 @@ export class EmailController {
     return this.emailService.update(emailId, updateEmailDto);
   }
 
-  /**
-   * Update email status
-   */
   @Post(':emailId/status')
   @HttpCode(HttpStatus.OK)
   async updateStatus(
@@ -81,18 +63,12 @@ export class EmailController {
     return this.emailService.updateStatus(emailId, body.status);
   }
 
-  /**
-   * Delete email by ID
-   */
   @Delete(':emailId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('emailId') emailId: string): Promise<void> {
     return this.emailService.remove(emailId);
   }
 
-  /**
-   * Get email processing statistics
-   */
   @Get('stats/overview')
   async getStats() {
     return this.emailService.getStats();

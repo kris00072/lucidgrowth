@@ -15,9 +15,6 @@ export class EmailService {
     private readonly webSocketGateway: AppWebSocketGateway,
   ) {}
 
-  /**
-   * Create a new email record
-   */
   async create(createEmailDto: CreateEmailDto): Promise<Email> {
     try {
       const createdEmail = new this.emailModel(createEmailDto);
@@ -25,7 +22,6 @@ export class EmailService {
       
       this.logger.log(`Email created: ${savedEmail.emailId}`);
       
-      // Notify frontend via WebSocket
       this.webSocketGateway.notifyEmailCreated(savedEmail);
       
       return savedEmail;
@@ -35,9 +31,6 @@ export class EmailService {
     }
   }
 
-  /**
-   * Find all emails with optional pagination
-   */
   async findAll(page: number = 1, limit: number = 50): Promise<{ emails: Email[]; total: number; page: number; totalPages: number }> {
     const skip = (page - 1) * limit;
     
@@ -59,9 +52,6 @@ export class EmailService {
     };
   }
 
-  /**
-   * Find email by ID
-   */
   async findOne(emailId: string): Promise<Email> {
     const email = await this.emailModel.findOne({ emailId }).exec();
     if (!email) {
@@ -155,7 +145,7 @@ export class EmailService {
    * Process raw email data and extract relevant information
    */
   async processRawEmail(rawEmail: string, emailId: string): Promise<CreateEmailDto> {
-    // Extract email headers
+    // Extract email heade
     const lines = rawEmail.split('\n');
     const headers: { [key: string]: string } = {};
     

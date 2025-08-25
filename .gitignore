@@ -16,6 +16,8 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+frontend/.env.local
+frontend/.env
 
 # Logs
 logs
@@ -116,3 +118,13 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

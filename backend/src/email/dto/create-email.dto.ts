@@ -28,7 +28,7 @@ export class CreateEmailDto {
   @IsString()
   rawEmail: string;
 
-  // Enhanced header analysis fields
+  
   @IsOptional()
   @IsString()
   messageId?: string;

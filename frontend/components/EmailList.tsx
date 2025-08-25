@@ -16,7 +16,6 @@ export const EmailList = () => {
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filter emails based on search and status
   const filteredEmails = emails.filter((email) => {
     const matchesSearch = 
       email.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -28,7 +27,6 @@ export const EmailList = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Pagination
   const totalPages = Math.ceil(filteredEmails.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedEmails = filteredEmails.slice(startIndex, startIndex + itemsPerPage);
@@ -37,7 +35,6 @@ export const EmailList = () => {
     setCurrentPage(page);
   };
 
-  // Keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'a') {
@@ -47,13 +44,11 @@ export const EmailList = () => {
     }
   };
 
-  // Add keyboard event listener
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedEmails, paginatedEmails]);
 
-  // Selection handlers
   const handleSelectAll = () => {
     if (selectedEmails.size === paginatedEmails.length) {
       setSelectedEmails(new Set());
@@ -106,7 +101,6 @@ export const EmailList = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Enhanced Filters */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1">
@@ -136,7 +130,6 @@ export const EmailList = () => {
         </div>
       </div>
 
-      {/* Enhanced Bulk Actions */}
       {selectedEmails.size > 0 && (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-blue-200/50 animate-slide-down">
           <div className="flex items-center justify-between">
@@ -160,7 +153,6 @@ export const EmailList = () => {
         </div>
       )}
 
-      {/* Enhanced Email Count */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
           <span className="text-sm font-medium text-gray-700">
@@ -169,7 +161,6 @@ export const EmailList = () => {
         </div>
       </div>
 
-      {/* Enhanced Email List */}
       {paginatedEmails.length === 0 ? (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-12 text-center shadow-lg border border-white/20">
           <div className="text-gray-500 text-lg">
@@ -178,7 +169,6 @@ export const EmailList = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Enhanced Select All Header */}
           <div className="bg-gradient-to-r from-gray-50 to-gray-100/50 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-gray-200/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -226,7 +216,6 @@ export const EmailList = () => {
         </div>
       )}
 
-      {/* Enhanced Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
           <button

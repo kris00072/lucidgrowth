@@ -17,13 +17,11 @@ export class GmailService implements OnModuleInit {
   private readonly TEST_SUBJECT = 'Lucid Growth Test Subject';
   private readonly TEST_EMAIL = 'krisppy0@gmail.com';
   
-  // Token management
   private tokenRefreshInProgress = false;
   private lastTokenRefresh: Date | null = null;
   private tokenRefreshAttempts = 0;
   private readonly MAX_REFRESH_ATTEMPTS = 3;
   
-  // Processing management
   private isProcessing = false;
   private readonly USER_ID = 'me';
 
@@ -39,13 +37,9 @@ export class GmailService implements OnModuleInit {
     await this.startWatch();
   }
 
-  /**
-   * Handle token refresh when access token expires
-   */
   private async handleTokenRefresh(): Promise<void> {
     if (this.tokenRefreshInProgress) {
       this.logger.log('Token refresh already in progress, waiting...');
-      // Wait for current refresh to complete
       while (this.tokenRefreshInProgress) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -65,10 +59,8 @@ export class GmailService implements OnModuleInit {
         
         this.logger.log('Access token refreshed successfully');
         
-        // Update Gmail client with new credentials
         this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
         
-        // Notify frontend about token refresh
         this.webSocketGateway.notifyTokenRefreshed();
       } else {
         throw new Error('No access token received from refresh');
@@ -81,7 +73,6 @@ export class GmailService implements OnModuleInit {
         this.logger.error('Max token refresh attempts reached, re-authentication required');
         await this.handleReAuthentication();
       } else {
-        // Wait before retrying
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
     } finally {
@@ -89,20 +80,14 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Handle re-authentication when refresh token fails
-   */
   private async handleReAuthentication(): Promise<void> {
     this.logger.log('Initiating re-authentication process...');
     
     try {
-      // Clear current credentials
       this.oauth2Client.setCredentials({});
       
-      // Try to re-initialize with current refresh token
       await this.initializeGmail();
       
-      // If successful, reset counters
       this.tokenRefreshAttempts = 0;
       this.lastTokenRefresh = new Date();
       
@@ -110,10 +95,8 @@ export class GmailService implements OnModuleInit {
     } catch (error) {
       this.logger.error(`Re-authentication failed: ${error.message}`);
       
-      // Notify frontend that manual re-authentication is required
       this.webSocketGateway.notifyReAuthenticationRequired();
       
-      // Stop Gmail operations
       this.gmail = null;
       this.watchExpiration = null;
       
@@ -121,9 +104,6 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Make Gmail API request with automatic token refresh
-   */
   private async makeGmailRequest<T>(requestFn: () => Promise<T>): Promise<T> {
     try {
       return await requestFn();
@@ -132,16 +112,12 @@ export class GmailService implements OnModuleInit {
         this.logger.log('Unauthorized request, attempting token refresh...');
         await this.handleTokenRefresh();
         
-        // Retry the request with new token
         return await requestFn();
       }
       throw error;
     }
   }
 
-  /**
-   * Initialize Gmail API client with OAuth2
-   */
   private async initializeGmail() {
     try {
       const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
@@ -166,9 +142,6 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Start or renew Gmail watch
-   */
   async startWatch(): Promise<void> {
     try {
       const response = await this.makeGmailRequest(async () => {
@@ -187,7 +160,6 @@ export class GmailService implements OnModuleInit {
       
       this.logger.log(`Gmail watch started, expires at: ${this.watchExpiration}`);
       
-      // Notify frontend
       this.webSocketGateway.notifyGmailWatchStarted(this.watchExpiration);
     } catch (error) {
       this.logger.error(`Failed to start Gmail watch: ${error.message}`);
@@ -195,9 +167,6 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Renew Gmail watch before expiration
-   */
   @Cron(CronExpression.EVERY_HOUR)
   async renewWatchIfNeeded(): Promise<void> {
     if (!this.watchExpiration) {
@@ -215,31 +184,23 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Proactively refresh access token before expiration
-   */
   @Cron(CronExpression.EVERY_30_MINUTES)
   async refreshTokenIfNeeded(): Promise<void> {
     if (!this.lastTokenRefresh) {
-      return; // No token refresh has happened yet
+      return;
     }
 
     const now = new Date();
     const timeSinceLastRefresh = now.getTime() - this.lastTokenRefresh.getTime();
     const oneHourInMs = 60 * 60 * 1000;
 
-    // Refresh token if it's been more than 50 minutes (tokens typically expire in 1 hour)
     if (timeSinceLastRefresh > 50 * 60 * 1000) {
       this.logger.log('Proactively refreshing access token...');
       await this.handleTokenRefresh();
     }
   }
 
-  /**
-   * Process Gmail history change from Pub/Sub push notification
-   */
   async processGmailHistoryChange(historyId: number): Promise<void> {
-    // Prevent concurrent processing to avoid race conditions
     if (this.isProcessing) {
       this.logger.log(`Already processing Gmail history, skipping notification for history ID: ${historyId}`);
       return;
@@ -252,7 +213,6 @@ export class GmailService implements OnModuleInit {
       
       const emailAddress = this.TEST_EMAIL;
       
-      // Get the last processed history ID
       const lastProcessedHistoryId = await this.checkpointService.getLastProcessedHistoryId(emailAddress);
       
       if (!lastProcessedHistoryId) {
@@ -261,7 +221,6 @@ export class GmailService implements OnModuleInit {
         return;
       }
 
-      // Fetch changes since the last processed history ID
       const history = await this.makeGmailRequest(async () => {
         return await this.gmail.users.history.list({
           userId: this.USER_ID,
@@ -280,7 +239,6 @@ export class GmailService implements OnModuleInit {
       let processedCount = 0;
       const newMessages: string[] = [];
 
-      // Process each history item
       for (const historyItem of history.data.history) {
         if (historyItem.messagesAdded) {
           this.logger.log(`Found ${historyItem.messagesAdded.length} messages in history item`);
@@ -288,7 +246,6 @@ export class GmailService implements OnModuleInit {
           for (const messageAdded of historyItem.messagesAdded) {
             const messageId = messageAdded.message.id;
             
-            // Check if message has already been processed
             const isProcessed = await this.checkpointService.isMessageProcessed(messageId);
             if (isProcessed) {
               this.logger.log(`Message ${messageId} already processed, skipping`);
@@ -300,7 +257,6 @@ export class GmailService implements OnModuleInit {
         }
       }
 
-      // Process new messages
       for (const messageId of newMessages) {
         try {
           await this.processIncomingEmail(messageId, emailAddress, historyId.toString());
@@ -310,7 +266,6 @@ export class GmailService implements OnModuleInit {
         }
       }
 
-      // Update checkpoint only after all messages are processed successfully
       if (processedCount > 0) {
         await this.checkpointService.updateLastProcessedHistoryId(emailAddress, historyId.toString());
         this.logger.log(`Successfully processed ${processedCount} new messages, updated checkpoint to ${historyId}`);
@@ -325,26 +280,18 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-
-
-  /**
-   * Process incoming email from Pub/Sub push notification
-   */
   async processIncomingEmail(emailId: string, emailAddress: string, historyId: string): Promise<void> {
     try {
       this.logger.log(`Processing incoming email: ${emailId}`);
       
-      // Check if email already exists to prevent duplicates
       try {
         const existingEmail = await this.emailService.findOne(emailId);
         this.logger.log(`Email ${emailId} already exists in database, skipping`);
         return;
       } catch (notFoundError) {
-        // Email doesn't exist, continue processing
         this.logger.log(`Email ${emailId} not found in database, proceeding with processing...`);
       }
       
-      // Fetch email from Gmail
       const email = await this.makeGmailRequest(async () => {
         return await this.gmail.users.messages.get({
           userId: this.USER_ID,
@@ -355,36 +302,29 @@ export class GmailService implements OnModuleInit {
 
       const rawEmail = Buffer.from(email.data.raw, 'base64').toString();
       
-      // Check if email matches test subject
       if (!this.isTestEmail(rawEmail)) {
         this.logger.log(`Email ${emailId} does not match test subject, skipping`);
         return;
       }
 
-      // Process and store email
       const emailData = await this.emailService.processRawEmail(rawEmail, emailId);
       await this.emailService.create(emailData);
       
-      // Mark as processed
       await this.emailService.updateStatus(emailId, EmailStatus.DONE);
       
-      // Mark message as processed in checkpoint system
       await this.checkpointService.markMessageAsProcessed(emailId, emailAddress, historyId);
       
       this.logger.log(`Email ${emailId} processed successfully`);
       
-      // Notify frontend
       this.webSocketGateway.notifyEmailProcessed(emailId);
     } catch (error) {
       this.logger.error(`Failed to process email ${emailId}: ${error.message}`);
       
-      // Handle duplicate key errors gracefully
       if (error.message.includes('duplicate key')) {
         this.logger.log(`Email ${emailId} already exists in database, skipping`);
         return;
       }
       
-      // Only mark as failed if it's not a duplicate key error
       try {
         await this.emailService.updateStatus(emailId, EmailStatus.PENDING);
       } catch (updateError) {
@@ -393,9 +333,6 @@ export class GmailService implements OnModuleInit {
     }
   }
 
-  /**
-   * Check if email matches test criteria
-   */
   private isTestEmail(rawEmail: string): boolean {
     const lines = rawEmail.split('\n');
     
@@ -413,9 +350,6 @@ export class GmailService implements OnModuleInit {
     return false;
   }
 
-  /**
-   * Get Gmail watch status
-   */
   async getWatchStatus(): Promise<{
     isActive: boolean;
     expiration: Date | null;
@@ -454,24 +388,15 @@ export class GmailService implements OnModuleInit {
     };
   }
 
-  /**
-   * Manually process a specific email
-   */
   async processEmailManually(emailId: string): Promise<void> {
     await this.processIncomingEmail(emailId, this.TEST_EMAIL, 'manual');
   }
 
-  /**
-   * Manually refresh access token
-   */
   async refreshTokenManually(): Promise<void> {
     this.logger.log('Manual token refresh requested');
     await this.handleTokenRefresh();
   }
 
-  /**
-   * Force re-authentication
-   */
   async forceReAuthentication(): Promise<void> {
     this.logger.log('Force re-authentication requested');
     await this.handleReAuthentication();

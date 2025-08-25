@@ -12,13 +12,11 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Enhanced Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold gradient-text mb-2">Email Analytics Dashboard</h1>
         <p className="text-gray-600 text-lg">Monitor and analyze your email delivery performance</p>
       </div>
 
-      {/* Enhanced Tabs */}
       <div className="flex justify-center">
         <div className="bg-white/20 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-white/20">
           <div className="flex space-x-2">
@@ -48,7 +46,6 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Enhanced Action Bar */}
       <div className="flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
@@ -71,7 +68,6 @@ export const Dashboard = () => {
         </button>
       </div>
 
-      {/* Enhanced Content */}
       <div className="animate-scale-in">
         {activeTab === 'overview' ? (
           <StatsCards />

@@ -7,9 +7,6 @@ export class GmailController {
   
   constructor(private readonly gmailService: GmailService) {}
 
-  /**
-   * Start or renew Gmail watch
-   */
   @Post('start-watch')
   @HttpCode(HttpStatus.OK)
   async startWatch(): Promise<{ message: string }> {
@@ -17,17 +14,11 @@ export class GmailController {
     return { message: 'Gmail watch started successfully' };
   }
 
-  /**
-   * Get Gmail watch status
-   */
   @Get('status')
   async getStatus() {
     return this.gmailService.getWatchStatus();
   }
 
-  /**
-   * Manually process a specific email
-   */
   @Post('process/:emailId')
   @HttpCode(HttpStatus.OK)
   async processEmail(@Param('emailId') emailId: string): Promise<{ message: string }> {
@@ -35,22 +26,16 @@ export class GmailController {
     return { message: `Email ${emailId} processing started` };
   }
 
-  /**
-   * Pub/Sub push notification endpoint
-   */
   @Post('push')
   @HttpCode(HttpStatus.OK)
   async handlePushNotification(@Body() body: any): Promise<{ message: string }> {
     try {
-      // Extract data from Pub/Sub message
       if (body.message && body.message.data) {
         const data = JSON.parse(Buffer.from(body.message.data, 'base64').toString());
         
         this.logger.log(`Received Gmail notification: ${JSON.stringify(data)}`);
         
-        // Gmail sends historyId, not emailId
         if (data.historyId) {
-          // Process Gmail history change asynchronously
           setImmediate(() => {
             this.gmailService.processGmailHistoryChange(data.historyId);
           });
@@ -66,9 +51,6 @@ export class GmailController {
     }
   }
 
-  /**
-   * Manually refresh access token
-   */
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(): Promise<{ message: string }> {
@@ -76,9 +58,6 @@ export class GmailController {
     return { message: 'Token refresh initiated' };
   }
 
-  /**
-   * Force re-authentication
-   */
   @Post('re-authenticate')
   @HttpCode(HttpStatus.OK)
   async reAuthenticate(): Promise<{ message: string }> {
