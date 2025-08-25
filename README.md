@@ -8,7 +8,7 @@ This application solves the challenge of understanding email delivery paths and 
 
 ## 🚀 Live Demo
 
-- **Frontend**: https://lucidgrowth.vercel.app
+- **Frontend**: https://lucidgrowth-frontend.vercel.app/
 - **Backend API**: https://lucidgrowth-backend.onrender.com
 - **Health Check**: https://lucidgrowth-backend.onrender.com/api/health
 
