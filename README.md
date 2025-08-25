@@ -198,15 +198,26 @@ Send emails from any email address to the test Gmail account with the exact subj
 
 ## 🌐 Deployment
 
-### Quick Deployment Guide
-For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+### ✅ Backend Deployed
+- **Status**: ✅ Live at https://lucidgrowth-backend.onrender.com/
+- **Platform**: Render (free tier)
+- **Health Check**: https://lucidgrowth-backend.onrender.com/api/health
+
+### 🚀 Frontend Deployment
+- **Status**: Ready for Vercel deployment
+- **Platform**: Vercel (free tier)
+- **Build**: ✅ Successful (all TypeScript errors resolved)
+
+### Quick Deployment Guides
+- **Backend**: [DOCKER_DEPLOYMENT_FIX.md](./DOCKER_DEPLOYMENT_FIX.md)
+- **Frontend**: [VERCEL_DEPLOYMENT_GUIDE.md](./VERCEL_DEPLOYMENT_GUIDE.md)
 
 ### Deployment Options
 
-#### Option 1: Render + Vercel (Recommended)
-- **Backend**: Deploy to Render (free tier available)
-- **Frontend**: Deploy to Vercel (free tier available)
-- **Database**: MongoDB Atlas (free tier available)
+#### ✅ Option 1: Render + Vercel (Current Setup)
+- **Backend**: ✅ Deployed on Render
+- **Frontend**: 🚀 Ready for Vercel
+- **Database**: MongoDB Atlas
 
 #### Option 2: Google Cloud Run + Vercel
 - **Backend**: Deploy to Google Cloud Run
@@ -214,7 +225,8 @@ For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUI
 - **Database**: MongoDB Atlas
 
 ### Environment Variables for Production
-Update your production environment variables with the actual deployed URLs and credentials.
+- **Backend**: Set in Render dashboard
+- **Frontend**: Set `NEXT_PUBLIC_API_URL=https://lucidgrowth-backend.onrender.com` in Vercel
 
 ### Security Notes
 - Never commit `.env` files to version control

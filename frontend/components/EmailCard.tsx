@@ -18,8 +18,9 @@ export const EmailCard = ({ email, isSelected, onSelect }: EmailCardProps) => {
   const [chainViewMode, setChainViewMode] = useState<'simple' | 'technical'>('simple');
   const { deleteEmail } = useEmail();
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+  const formatDate = (dateInput: Date | string) => {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    return date.toLocaleString();
   };
 
   const getStatusColor = (status: EmailStatus) => {
@@ -196,10 +197,10 @@ export const EmailCard = ({ email, isSelected, onSelect }: EmailCardProps) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200/50">
-                      {email.deliveryTimeline.map((hop, index) => {
+                      {email.deliveryTimeline?.map((hop, index) => {
                         // Show in chronological order (oldest first)
                         const hopData = hop;
-                        const totalSteps = email.deliveryTimeline.length;
+                        const totalSteps = email.deliveryTimeline?.length || 0;
                         
                         return (
                           <tr key={index} className="hover:bg-gray-50/50 transition-colors duration-200">
@@ -309,7 +310,7 @@ export const EmailCard = ({ email, isSelected, onSelect }: EmailCardProps) => {
                   Email Journey Summary
                 </h5>
                 <div className="text-sm text-blue-800 space-y-2">
-                  <p>• Your email passed through <strong>{email.deliveryTimeline.length} servers</strong> to reach its destination</p>
+                  <p>• Your email passed through <strong>{email.deliveryTimeline?.length || 0} servers</strong> to reach its destination</p>
                   <p>• Total delivery time: <strong>{(() => {
                     const totalSeconds = email.deliveryTimeline.reduce((sum, hop) => {
                       if (hop.delay) {
@@ -387,7 +388,7 @@ export const EmailCard = ({ email, isSelected, onSelect }: EmailCardProps) => {
                             <div className="text-sm font-medium text-gray-800">
                               {viewMode === 'simple' ? (
                                 index === 0 ? 'Step 1: Initial Processing' :
-                                index === email.deliveryTimeline.length - 1 ? `Step ${email.deliveryTimeline.length}: Final Delivery` :
+                                index === (email.deliveryTimeline?.length || 0) - 1 ? `Step ${email.deliveryTimeline?.length || 0}: Final Delivery` :
                                 index === 1 ? 'Step 2: Internal Routing' :
                                 index === 2 ? 'Step 3: External Transfer' :
                                 `Step ${index + 1}: Intermediate Transfer`
@@ -444,7 +445,7 @@ export const EmailCard = ({ email, isSelected, onSelect }: EmailCardProps) => {
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-lg font-bold text-blue-600">{email.deliveryTimeline.length}</div>
+                      <div className="text-lg font-bold text-blue-600">{email.deliveryTimeline?.length || 0}</div>
                       <div className="text-xs text-gray-500">Servers</div>
                     </div>
                     <div>
